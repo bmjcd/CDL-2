@@ -1,4 +1,4 @@
-const cacheName = 'avent-cache-v3';
+const cacheName = 'avent-cache-v6';
 const filesToCache = [
     './',
     './index.html',

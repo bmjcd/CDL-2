@@ -44,6 +44,8 @@ body {
     margin: 40px auto;
     width: 100%;
     max-width: 350px;
+    min-height: 622px;
+    aspect-ratio: 9 / 16;
     background: #d2b48c;
     border-radius: 20px 20px 40px 40px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.15);
@@ -53,12 +55,11 @@ body {
     justify-content: center;
 }
 #porte {
-        position: absolute;
-        /* position exacte par défaut : centré mais on ajuste avec media queries si besoin */
-        width: 80px;
+    position: absolute;
+    width: 80px;
     height: 120px;
-    background: #a0522d; /* couleur plus vive */
-    border: 4px solid #fff176; /* bordure dorée */
+    background: #a0522d;
+    border: 4px solid #fff176;
     border-radius: 10px;
     color: #fff;
     font-weight: bold;
@@ -67,12 +68,15 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4); /* ombre plus forte */
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
     transition: transform 0.7s cubic-bezier(.68,-0.55,.27,1.55), box-shadow 0.3s;
     opacity: var(--door-opacity, 1);
+    /* Position fixe relative au conteneur, pas à l'image */
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+    margin-left: 0;
+    margin-top: 0;
     z-index: 10;
 }
 /* Style cartoon pour le texte modifiable */
@@ -103,14 +107,6 @@ body {
     transform: scale(3) translateY(40px);
     z-index: 2;
 }
-#calendrier {
-    margin: 30px auto;
-    width: 350px;
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    grid-gap: 12px;
-    max-width: 92vw;
-}
 .case {
     /* texture image for case faces */
     background-image: url('Petite_porte.jpg');
@@ -134,11 +130,6 @@ body {
     color: #6b4928;
     font-weight: 700;
 }
-.message {
-    margin-top: 20px;
-    font-size: 1.1em;
-    color: #6d4c1b;
-}
 
 /* Image intérieur centrée et responsive */
 .interieur {
@@ -155,8 +146,9 @@ body {
 .maison-img {
     display: block;
     width: 100%;
+    height: 100%;
     max-width: 350px;
-    height: auto;
+    object-fit: cover;
     border-radius: 16px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.15);
 }
@@ -203,51 +195,6 @@ body {
     100% { transform: translate(-50%, -50%) rotateY(-75deg); }
 }
 
-/* animation d'ouverture (effet "porte qui s'ouvre" / flip) */
-/* ancienne animation supprimée (remplacée par doorOpen) */
-
-/* Panel d'édition */
-#editorPanel {
-    #controlsPanel {
-        position: fixed;
-        left: 12px;
-        top: 12px;
-        background: rgba(255,255,255,0.92);
-        border: 1px solid #e6d6c2;
-        padding: 10px 12px;
-        border-radius: 10px;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-        z-index: 11000;
-        font-size: 14px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        max-width: 210px;
-    }
-    #controlsPanel .group { display: flex; flex-wrap: wrap; gap:6px; align-items: center; }
-    #controlsPanel label { font-weight: 600; }
-    #controlsPanel input[type=range] { width: 120px; }
-    #controlsPanel button { cursor:pointer; background:#fff; border:1px solid #d8c4ad; border-radius:6px; padding:4px 8px; }
-    @media (max-width:600px){
-        #controlsPanel { left:8px; right:8px; top:auto; bottom:8px; flex-direction:row; flex-wrap:wrap; max-width:none; }
-    }
-    position: fixed;
-    right: 12px;
-    top: 12px;
-    background: rgba(255,255,255,0.95);
-    border: 1px solid #e6d6c2;
-    padding: 8px 10px;
-    border-radius: 8px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-    z-index: 9999;
-    font-size: 14px;
-}
-#editorPanel input[type="number"] { vertical-align:middle; }
-#editorPanel button { margin-right:6px; margin-bottom:4px; }
-@media (max-width:600px){
-    #editorPanel { right:8px; left:8px; top:auto; bottom:8px; display:flex; flex-wrap:wrap; gap:6px; }
-}
-
 /* Responsive adjustments */
 @media (max-width: 480px) {
     #maison {
@@ -276,13 +223,11 @@ body {
     .case-num {
         font-size: 1.1rem;
     }
-    .message { font-size: 1rem; }
 }
 
 @media (max-width: 360px) {
     #maison { width: 140px; height: 200px; }
     #porte { width: 56px; height: 84px; }
-    #calendrier { grid-template-columns: repeat(3, 1fr); }
     .case { width: 56px; height: 56px; }
 }
 
@@ -430,9 +375,6 @@ html, body { height: 100%; }
     .door { width:30px; height:40px; font-size:14px; }
     h1 { font-size:1.5rem; }
 }
-
-/* Anciennes règles `.special-overlay` supprimées — non utilisées
-   L'affichage spécial utilise désormais `.interior-wrapper.special-room-wrapper`. */
 
 /* Text editable on the special image */
 .special-card {

@@ -66,9 +66,22 @@ let state = loadState();
 // If positions are missing or incomplete, populate with the provided default layout
 (function ensureDefaultPositions(){
     try {
-        const need = !state.positions || Object.keys(state.positions).length < 24;
-        if (!need) return;
-        state.positions = {
+        // Force reset positions if missing, incomplete, or corrupted
+        const hasValidPositions = state.positions && Object.keys(state.positions).length === 24;
+        if (hasValidPositions) {
+            // Check if all positions have required properties
+            for (let i = 1; i <= 24; i++) {
+                const pos = state.positions[i];
+                if (!pos || typeof pos.left !== 'number' || typeof pos.top !== 'number' || typeof pos.sizeRatio !== 'number') {
+                    // Corrupted, reset all
+                    state.positions = null;
+                    break;
+                }
+            }
+        }
+        
+        if (!state.positions || Object.keys(state.positions).length < 24) {
+            state.positions = {
             "1": { "left": 11.57, "top": 15.08, "sizeRatio": 0.105 },
             "2": { "left": 9.57, "top": 93.35, "sizeRatio": 0.105 },
             "3": { "left": 89.29, "top": 11.95, "sizeRatio": 0.105 },
@@ -93,13 +106,12 @@ let state = loadState();
             "22": { "left": 57, "top": 20.21, "sizeRatio": 0.105 },
             "23": { "left": 35.57, "top": 82.54, "sizeRatio": 0.105 },
             "24": { "left": 76.01, "top": 53.76, "sizeRatio": 0.15750000000000003 }
-        };
-        try { saveState(state); } catch(e) {}
+            };
+            try { saveState(state); } catch(e) {}
+        }
     } catch (e) {}
 })();
 
-// Suppression de la fonction d'édition/sauvegarde directe des textes spéciaux.
- 
 // --- Gestion du texte cartoon modifiable, position, taille, persistance ---
 document.addEventListener('DOMContentLoaded', function() {
     // Récupérer les éléments DOM une fois le document prêt
@@ -249,11 +261,6 @@ const importedPositionsPayload = {
 // Le payload `importedPositionsPayload` est défini ci-dessus.
 // Son application est réalisée plus bas, une fois le DOM prêt.
 // Fin import
-
-// Compute available messages by removing already-used messages saved in state.messages
-// Fonction obsolète, maintenant les messages sont fixes par case
-
-// (Handler de la porte déplacé dans DOMContentLoaded)
 
 function afficherImageInterieur() {
     if (calendrier.querySelector('img.interieur')) return; // déjà ajoutée
@@ -436,49 +443,37 @@ function genererCases() {
 
     // sauvegarder positions si nouvellement générées
     saveState(state);
-
-    // afficher le dernier message ouvert si présent
-    const lastOpened = (state.opened || []).slice(-1)[0];
-    if (lastOpened && state.messages && state.messages[lastOpened]) {
-        afficherMessage(state.messages[lastOpened]);
-    }
-}
-
-// Wrapper to reproduce the door entry tempo for the special image:
-
-
-function afficherMessage(msg) {
-    let msgDiv = document.querySelector('.message');
-    if (!msgDiv) {
-        msgDiv = document.createElement('div');
-        msgDiv.className = 'message';
-        calendrier.parentNode.insertBefore(msgDiv, calendrier.nextSibling);
-    }
-    msgDiv.textContent = msg;
 }
 
 // Fonction pour afficher un avertissement si l'ordre n'est pas respecté
 function showOrderWarning(clickedCase, expectedCase) {
+    // Créer le message positionné par rapport à l'image intérieur
+    const interiorWrapper = document.querySelector('.interior-wrapper');
     const warning = document.createElement('div');
-    warning.style.position = 'fixed';
-    warning.style.top = '50%';
-    warning.style.left = '50%';
-    warning.style.transform = 'translate(-50%, -50%)';
+    warning.style.position = 'absolute';
+    warning.style.bottom = '0';
+    warning.style.left = '0';
+    warning.style.right = '0';
     warning.style.background = 'rgba(0,0,0,0.9)';
     warning.style.color = '#fff';
-    warning.style.padding = '25px 35px';
-    warning.style.borderRadius = '15px';
+    warning.style.padding = '25px 20px';
+    warning.style.borderRadius = '0 0 16px 16px';
     warning.style.textAlign = 'center';
-    warning.style.zIndex = '11000';
+    warning.style.zIndex = '99999';
     warning.style.fontFamily = "'Great Vibes', cursive";
-    warning.style.fontSize = 'clamp(1.2rem, 4vw, 1.8rem)';
-    warning.style.boxShadow = '0 8px 32px rgba(0,0,0,0.5)';
+    warning.style.fontSize = 'clamp(1.3rem, 5vw, 2rem)';
+    warning.style.boxShadow = '0 -4px 20px rgba(0,0,0,0.3)';
     warning.style.opacity = '0';
     warning.style.transition = 'opacity 0.3s ease';
-    warning.style.maxWidth = '85%';
+    warning.style.pointerEvents = 'none';
     warning.innerHTML = `Ouvre d'abord la case ${expectedCase} ! 🎄`;
     
-    document.body.appendChild(warning);
+    // Ajouter dans le wrapper de l'intérieur si disponible, sinon body
+    if (interiorWrapper) {
+        interiorWrapper.appendChild(warning);
+    } else {
+        document.body.appendChild(warning);
+    }
     
     requestAnimationFrame(() => {
         warning.style.opacity = '1';
@@ -621,22 +616,6 @@ function showMessageScreen(msg, caseNumber) {
     document.addEventListener('keydown', handleEscape);
 }
 
-// Animation des flocons (clé conservée)
-const styleSheet = document.createElement("style");
-styleSheet.textContent = `@keyframes fall{0%{transform:translateY(0);}100%{transform:translateY(100vh);}}`;
-document.head.appendChild(styleSheet);
-
-// Optional: fonction pour réinitialiser l'état (utile pour debug)
-window.aventReset = function() {
-    state = { opened: [], messages: {} };
-    saveState(state);
-    location.reload();
-};
-
-// Suppression des contrôles de placement / randomisation / reset.
-
-// Attach listeners to editor buttons (if present)
-
 // Affiche une image spéciale en plein écran (comportement: nouvelle pièce, pas overlay)
 function showSpecialImage(src) {
     if (document.querySelector('.special-room-wrapper')) return;
@@ -668,6 +647,9 @@ function showSpecialImage(src) {
         if (!state.specialText2.value) {
             state.specialText2.value = '"You and me belong together"';
         }
+        
+        // Sauvegarder les textes initialisés
+        try { saveState(state); } catch(e) {}
     }
     const overlay = document.createElement('div');
     overlay.className = 'interior-wrapper special-room-wrapper';
