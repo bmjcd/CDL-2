@@ -2,36 +2,38 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Calendrier Ghibli</title>
+
+<!-- Police cartoon -->
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
+<!-- Police féérique pour le texte spécial -->
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="style.css">
 <link rel="manifest" href="manifest.json">
 </head>
 <body>
-<div id="maison">
-    <div id="porte">Clique sur la porte</div>
-</div>
-<!-- Outils d'édition : réorganisation, placement manuel, réinitialisation, opacité -->
-<div id="editorPanel" aria-hidden="false">
-    <button id="randomizeBtn" title="Réorganiser aléatoirement">Réorganiser</button>
-    <button id="importPositionsBtn" title="Importer positions depuis JSON">Importer positions</button>
-    <button id="placementToggle">Mode placement</button>
-    <label for="placementCase">Case :</label>
-    <input id="placementCase" type="number" min="1" max="24" value="1" style="width:60px">
-    <button id="clearPositionsBtn" title="Supprimer positions">Supprimer positions</button>
-    <button id="resetOpenedBtn" title="Réinitialiser ouvertures">Réinitialiser ouvertures</button>
-    <button id="resetBtn" title="Réinitialiser tout">Réinitialiser tout</button>
-    <button id="moveDoorBtn" title="Activer le déplacement de la porte">Déplacer porte</button>
-    <label for="opacityRange">Opacité :</label>
-    <input id="opacityRange" type="range" min="0.2" max="1" step="0.05" value="0.9">
-    <span id="opacityVal">0.9</span>
-    <label for="doorSizeRange">Taille porte :</label>
-    <input id="doorSizeRange" type="range" min="50" max="200" step="5" value="100">
-    <span id="doorSizeVal">100%</span>
-</div>
+    <div id="maison">
+        <!-- Use an image element so sizing matches the interior image behavior -->
+        <img id="maisonImg" class="maison-img" src="maison.png" alt="Maison" />
+        <div id="porte">Clique sur la porte</div>
+        <div id="customText" spellcheck="false">Mon texte cartoon</div>
+    </div>
 
 <div id="calendrier" style="display:none;"></div>
+<!-- Black screen for tempo when entering the house -->
+<div id="blackScreen" aria-hidden="true"></div>
+<!-- Audio: effets sonores (placer les fichiers mp3 dans le même dossier) -->
+<audio id="doorAudio" src="Porteentre.mp3" preload="auto"></audio>
+<audio id="caseAudio" src="Case.mp3" preload="auto"></audio>
+<audio id="specialAudio" src="Belongtogether.mp3" preload="auto"></audio>
+<audio id="chemineeAudio" src="cheminee.mp3" preload="auto" loop></audio>
+<!-- Son joué à l'ouverture des cases (sauf 24) -->
+<audio id="coffreAudio" src="Coffre.mp3" preload="auto"></audio>
 <script src="script.js"></script>
 <script>
 if ('serviceWorker' in navigator) {

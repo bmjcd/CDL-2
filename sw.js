@@ -1,11 +1,18 @@
-const cacheName = 'avent-cache-v2';
+const cacheName = 'avent-cache-v3';
 const filesToCache = [
     './',
     './index.html',
     './style.css',
     './script.js',
     './maison.png',
-    './interieurmaison.png',
+    './Interieurmaison.png',
+    './joliecieltotoro.png',
+    './Petite_porte.jpg',
+    './Porteentre.mp3',
+    './Case.mp3',
+    './Belongtogether.mp3',
+    './cheminee.mp3',
+    './Coffre.mp3',
     './manifest.json'
 ];
 
